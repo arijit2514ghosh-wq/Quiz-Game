@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="Play a quick General Knowledge or Aptitude quiz and climb the Quiz Master leaderboard.">
+  <title>Quiz Master | Think. Play. Rank.</title>
+  <style>
+:root {
+  color-scheme: dark;
+  --bg: #0a1020;
+  --panel: rgba(18, 27, 49, .92);
+  --panel-2: rgba(21, 33, 58, .92);
+  --line: rgba(189, 204, 237, .14);
+  --text: #f5f7ff;
+  --muted: #9aa9c5;
+  --teal: #7be6d6;
+  --teal-strong: #39cbb9;
+  --violet: #a99cff;
+  --gold: #f6ce79;
+  --red: #ff919f;
+  --green: #7fe0b2;
+  --shadow: 0 24px 70px rgba(0, 0, 0, .26);
+}
+
+* { box-sizing: border-box; }
+html { min-height: 100%; background: var(--bg); scroll-behavior: smooth; }
+body {
+  min-height: 100vh; margin: 0; color: var(--text);
+  background: radial-gradient(ellipse at 10% 0%, rgba(66, 199, 188, .11), transparent 33%),
+              radial-gradient(ellipse at 92% 18%, rgba(137, 111, 255, .13), transparent 34%), var(--bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid rgba(123, 230, 214, .72); outline-offset: 3px; }
+.ambient { position: fixed; z-index: -1; width: 260px; height: 260px; border-radius: 50%; filter: blur(90px); opacity: .15; pointer-events: none; }
+.ambient-one { top: 30%; left: -180px; background: #20c7b5; }
+.ambient-two { top: 65%; right: -180px; background: #8d7bff; }
+
+.site-header { width: min(100% - 40px, 1050px); min-height: 78px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(210, 222, 255, .09); }
+.brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; color: var(--text); }
+.brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 13px; color: #091321; font-size: 22px; font-weight: 950; background: linear-gradient(135deg, var(--teal), #b2bcff); box-shadow: 0 6px 24px rgba(82, 211, 198, .15); }
+.brand-mark span { color: #5543ab; }
+.brand-name { display: flex; gap: 4px; align-items: baseline; font-weight: 900; font-size: 12px; letter-spacing: 1.7px; }
+.brand-name span { color: var(--teal); }
+.header-tag { color: #99a8c3; font-size: 10px; font-weight: 800; letter-spacing: 1.7px; }
+.header-tag i { padding: 0 5px; font-style: normal; color: #647594; }
+.status-dot { display: inline-block; width: 6px; height: 6px; margin: 0 7px 1px 0; border-radius: 50%; background: var(--teal); box-shadow: 0 0 12px rgba(123, 230, 214, .7); }
+
+.app-shell { width: min(100% - 32px, 760px); margin: 0 auto; min-height: calc(100vh - 140px); }
+.screen { padding: 42px 0 48px; animation: screenIn .24s ease both; }
+.hidden { display: none !important; }
+@keyframes screenIn { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+.panel { border: 1px solid var(--line); border-radius: 24px; background: linear-gradient(145deg, rgba(19, 29, 52, .96), rgba(13, 22, 41, .96)); box-shadow: var(--shadow); }
+.home-screen { max-width: 570px; margin: 0 auto; display: grid; gap: 18px; }
+.welcome-card { padding: 34px 38px 24px; text-align: center; overflow: hidden; position: relative; }
+.welcome-card::before { content: ""; position: absolute; width: 250px; height: 180px; top: -140px; left: calc(50% - 125px); background: var(--teal); filter: blur(90px); opacity: .16; pointer-events: none; }
+.eyebrow { margin: 0; color: var(--teal); font-size: 9px; line-height: 1.4; font-weight: 900; letter-spacing: 2px; }
+.sparkle { margin-right: 4px; color: var(--gold); }
+.welcome-card h1 { margin: 17px 0 0; font-size: clamp(35px, 7vw, 49px); letter-spacing: -2.1px; line-height: 1.08; font-weight: 850; }
+.welcome-card h1 span, .section-intro h2 span { color: var(--teal); }
+.welcome-copy { margin: 13px 0 27px; color: var(--muted); font-size: 13px; }
+.name-form { text-align: left; }
+.name-form label { display: block; margin: 0 0 8px 2px; font-size: 12px; font-weight: 750; color: #dfe7fb; }
+.name-form input { display: block; width: 100%; height: 50px; padding: 0 15px; border-radius: 12px; border: 1px solid rgba(187, 206, 244, .18); background: #0b1427; color: var(--text); outline: none; transition: border-color .16s, box-shadow .16s; }
+.name-form input::placeholder { color: #687994; }
+.name-form input:focus { border-color: var(--teal); box-shadow: 0 0 0 4px rgba(123, 230, 214, .09); }
+.field-error { min-height: 15px; margin: 5px 2px 1px; color: var(--red); font-size: 11px; }
+.button { min-height: 46px; border: 0; border-radius: 12px; padding: 0 18px; display: inline-flex; gap: 11px; align-items: center; justify-content: center; font-size: 12px; font-weight: 850; transition: transform .15s ease, filter .15s ease, border-color .15s ease; }
+.button:hover:not(:disabled) { filter: brightness(1.07); transform: translateY(-1px); }
+.button:active:not(:disabled) { transform: translateY(0); }
+.button:disabled { cursor: not-allowed; opacity: .42; }
+.button-primary { color: #071721; background: linear-gradient(105deg, var(--teal), #9edbff); box-shadow: 0 8px 22px rgba(68, 207, 190, .12); }
+.button-secondary { color: var(--text); border: 1px solid var(--line); background: rgba(255, 255, 255, .045); }
+.button-quiet { color: var(--muted); background: transparent; border: 1px solid transparent; }
+.start-button { width: 100%; min-height: 48px; }
+.start-button span { font-size: 18px; line-height: 1; }
+.feature-strip { margin: 26px -5px 0; padding-top: 19px; border-top: 1px solid rgba(187, 206, 244, .1); display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: left; }
+.feature-strip > div { display: flex; gap: 8px; align-items: flex-start; min-width: 0; }
+.feature-icon { flex: 0 0 auto; color: var(--teal); font-size: 17px; line-height: 1.1; }
+.feature-strip strong, .feature-strip small { display: block; }
+.feature-strip strong { font-size: 10px; line-height: 1.4; }
+.feature-strip small { margin-top: 4px; color: var(--muted); font-size: 9px; line-height: 1.3; }
+
+.leaderboard { padding: 21px 22px 15px; }
+.panel-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 17px; }
+.heading-icon { display: grid; place-items: center; flex: 0 0 auto; width: 43px; height: 43px; border-radius: 14px; color: var(--gold); font-size: 24px; background: rgba(246, 206, 121, .09); border: 1px solid rgba(246, 206, 121, .16); }
+.heading-copy { flex: 1; min-width: 0; }
+.heading-copy .eyebrow { font-size: 8px; margin-bottom: 3px; color: #9ba9c3; }
+.heading-copy h2 { margin: 0; font-size: 20px; letter-spacing: -.5px; }
+.top-badge { padding: 6px 10px; color: var(--gold); font-size: 9px; letter-spacing: 1px; font-weight: 900; border-radius: 99px; border: 1px solid rgba(246, 206, 121, .23); background: rgba(246, 206, 121, .055); }
+.leaderboard-list { display: grid; gap: 7px; }
+.empty-leaderboard { min-height: 95px; padding: 18px 10px; border-radius: 14px; border: 1px dashed rgba(187, 206, 244, .17); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 3px; }
+.empty-trophy { margin-bottom: 2px; color: #667995; font-size: 21px; }
+.empty-leaderboard strong { font-size: 12px; }
+.empty-leaderboard > span:last-child { font-size: 11px; color: var(--muted); }
+.leader-row { display: grid; grid-template-columns: 35px minmax(0, 1fr) auto; align-items: center; gap: 11px; padding: 10px 11px; border-radius: 13px; border: 1px solid rgba(187, 206, 244, .08); background: rgba(255, 255, 255, .025); }
+.leader-row.rank-one { border-color: rgba(246, 206, 121, .27); background: linear-gradient(90deg, rgba(246, 206, 121, .075), rgba(255,255,255,.018)); }
+.rank-number { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 10px; background: rgba(255,255,255,.05); color: var(--muted); font-size: 12px; font-weight: 900; }
+.rank-one .rank-number { color: var(--gold); background: rgba(246,206,121,.09); }
+.leader-person, .leader-score { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.leader-person strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.leader-person span, .leader-score span { font-size: 9px; color: var(--muted); }
+.leader-score { align-items: flex-end; }
+.leader-score strong { font-size: 14px; color: var(--teal); }
+.rank-one .leader-score strong { color: var(--gold); }
+.leaderboard-footnote { margin: 13px 2px 0; color: #7f8eaa; font-size: 9px; }
+.leaderboard-footnote span { margin-right: 4px; color: var(--teal); }
+
+.text-back { display: inline-flex; align-items: center; gap: 8px; padding: 7px 0; background: transparent; color: var(--muted); border: 0; font-size: 12px; font-weight: 750; }
+.text-back:hover { color: var(--teal); }
+.section-intro { margin: 28px 0 23px; }
+.section-intro h2 { margin: 8px 0 8px; font-size: clamp(30px, 6vw, 40px); letter-spacing: -1.4px; line-height: 1.12; }
+.section-intro > p:last-child { max-width: 500px; margin: 0; color: var(--muted); font-size: 13px; }
+.section-intro strong { color: var(--text); }
+.category-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+.category-card { min-height: 245px; padding: 22px; text-align: left; color: var(--text); border-radius: 20px; border: 1px solid var(--line); background: linear-gradient(145deg, rgba(20, 33, 58, .98), rgba(13, 22, 42, .98)); display: flex; flex-direction: column; align-items: stretch; gap: 14px; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+.category-card:hover { transform: translateY(-3px); border-color: rgba(123,230,214,.45); }
+.category-topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.category-symbol { display: grid; place-items: center; width: 49px; height: 49px; border-radius: 15px; background: rgba(123,230,214,.09); font-size: 24px; }
+.category-aptitude .category-symbol { background: rgba(169,156,255,.11); }
+.round-count { color: var(--muted); font-size: 8px; letter-spacing: 1px; font-weight: 900; }
+.category-title { font-size: 20px; font-weight: 850; line-height: 1.2; letter-spacing: -.5px; }
+.category-description { color: var(--muted); font-size: 12px; line-height: 1.65; }
+.category-cta { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: auto; padding-top: 11px; color: var(--teal); font-size: 11px; font-weight: 850; border-top: 1px solid rgba(187,206,244,.1); }
+.category-cta b { font-size: 17px; }
+.category-aptitude .category-cta { color: var(--violet); }
+.mini-tip { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 11px; margin-top: 18px; }
+.mini-tip span { color: var(--gold); }
+
+.quiz-topbar { display: grid; grid-template-columns: 1fr auto auto; gap: 14px; align-items: center; margin-bottom: 17px; }
+.category-label { padding: 7px 9px; border-radius: 99px; border: 1px solid rgba(123,230,214,.18); color: var(--teal); font-size: 8px; font-weight: 900; letter-spacing: 1px; white-space: nowrap; }
+.score-chip { padding: 7px 10px; border-radius: 99px; background: rgba(123,230,214,.09); color: var(--muted); font-size: 10px; white-space: nowrap; }
+.score-chip strong { color: var(--teal); margin-left: 3px; }
+.question-panel { padding: 27px; }
+.progress-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 9px; letter-spacing: 1px; font-weight: 900; }
+.progress-row strong { color: var(--teal); }
+.progress-track { height: 6px; margin: 10px 0 27px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
+.progress-fill { width: 5%; height: 100%; background: linear-gradient(90deg, var(--teal-strong), #b2c8ff); border-radius: inherit; transition: width .22s ease; }
+.question-topic { margin: 0 0 9px; color: var(--violet); font-size: 9px; letter-spacing: 1.6px; font-weight: 900; }
+.question-panel h2 { margin: 0 0 23px; max-width: 610px; font-size: clamp(21px, 4vw, 28px); line-height: 1.35; letter-spacing: -.55px; }
+.options-list { display: grid; gap: 10px; }
+.option-button { display: grid; grid-template-columns: 31px minmax(0, 1fr); align-items: center; gap: 12px; min-height: 54px; padding: 8px 14px; text-align: left; color: #e9efff; border: 1px solid rgba(187,206,244,.13); border-radius: 13px; background: rgba(255,255,255,.025); transition: border-color .15s, background .15s, transform .15s; }
+.option-button:hover:not(:disabled) { border-color: rgba(123,230,214,.5); background: rgba(123,230,214,.05); transform: translateX(2px); }
+.option-button:disabled { cursor: default; }
+.option-letter { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 9px; border: 1px solid rgba(187,206,244,.16); color: var(--muted); font-size: 11px; font-weight: 900; }
+.option-button > span:last-child { font-size: 12px; line-height: 1.4; }
+.option-button.correct { border-color: rgba(127,224,178,.55); background: rgba(127,224,178,.085); }
+.option-button.correct .option-letter { color: #071b16; background: var(--green); border-color: var(--green); }
+.option-button.wrong { border-color: rgba(255,145,159,.58); background: rgba(255,145,159,.075); }
+.option-button.wrong .option-letter { color: #270b10; background: var(--red); border-color: var(--red); }
+.answer-feedback { min-height: 20px; margin: 12px 2px 1px; font-size: 11px; font-weight: 700; }
+.answer-feedback.good { color: var(--green); }
+.answer-feedback.bad { color: var(--red); }
+.question-footer { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding-top: 16px; margin-top: 13px; border-top: 1px solid rgba(187,206,244,.1); }
+.keyboard-hint { color: #7f8eaa; font-size: 10px; }
+.next-button { min-width: 155px; }
+
+.result-panel { max-width: 520px; margin: 0 auto; padding: 32px; text-align: center; }
+.result-medal { width: 65px; height: 65px; display: grid; place-items: center; margin: 0 auto 17px; border-radius: 21px; border: 1px solid rgba(246,206,121,.2); background: rgba(246,206,121,.075); font-size: 30px; }
+.result-panel h2 { margin: 9px 0 5px; font-size: clamp(28px, 6vw, 37px); letter-spacing: -1px; }
+.result-description { margin: 0; color: var(--muted); font-size: 12px; }
+.score-summary { display: flex; justify-content: center; align-items: baseline; gap: 8px; margin: 25px 0 21px; }
+.score-summary strong { color: var(--teal); font-size: 59px; line-height: 1; letter-spacing: -2px; }
+.score-summary span { color: var(--muted); font-size: 12px; }
+.result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+.result-stats > div { padding: 13px 5px; border: 1px solid rgba(187,206,244,.1); border-radius: 13px; background: rgba(255,255,255,.025); }
+.result-stats strong, .result-stats span { display: block; }
+.result-stats strong { margin-bottom: 3px; font-size: 20px; }
+.result-stats span { color: var(--muted); font-size: 10px; }
+.performance-message { margin: 18px 0 21px; color: #c8d4eb; font-size: 12px; }
+.result-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.result-actions .button { width: 100%; }
+.result-actions .button-quiet { grid-column: 1 / -1; }
+.site-footer { width: min(100% - 32px, 760px); margin: 0 auto; padding: 0 0 25px; color: #687995; text-align: center; font-size: 10px; letter-spacing: .2px; }
+.footer-mark { margin-right: 5px; color: var(--teal); font-weight: 900; }
+.footer-divider { padding: 0 5px; }
+
+@media (min-width: 780px) {
+  .home-screen { max-width: 100%; grid-template-columns: minmax(0, 1.08fr) minmax(300px, .92fr); align-items: stretch; gap: 17px; }
+  .welcome-card { display: flex; flex-direction: column; justify-content: center; padding: 36px 34px 27px; }
+  .leaderboard { display: flex; flex-direction: column; justify-content: center; }
+  .feature-strip { margin-top: 25px; }
+}
+@media (max-width: 560px) {
+  .site-header { width: calc(100% - 28px); min-height: 66px; }
+  .brand-mark { width: 34px; height: 34px; border-radius: 11px; }
+  .brand-name { font-size: 10px; letter-spacing: 1.3px; }
+  .header-tag { font-size: 8px; letter-spacing: 1px; }
+  .header-tag i { padding: 0 2px; }
+  .status-dot { width: 5px; height: 5px; margin-right: 4px; }
+  .app-shell { width: calc(100% - 24px); }
+  .screen { padding: 25px 0 34px; }
+  .welcome-card { padding: 28px 20px 20px; border-radius: 20px; }
+  .welcome-card h1 { font-size: 38px; }
+  .welcome-copy { font-size: 12px; margin-bottom: 23px; }
+  .feature-strip { margin: 21px -3px 0; padding-top: 16px; gap: 7px; }
+  .feature-strip > div { gap: 5px; }
+  .feature-icon { font-size: 14px; }
+  .feature-strip strong { font-size: 9px; }
+  .feature-strip small { font-size: 8px; }
+  .leaderboard { padding: 18px 15px 13px; border-radius: 20px; }
+  .category-grid { grid-template-columns: 1fr; gap: 11px; }
+  .category-card { min-height: 205px; padding: 19px; gap: 11px; }
+  .category-title { font-size: 19px; }
+  .section-intro { margin-top: 22px; }
+  .quiz-topbar { grid-template-columns: 1fr auto; gap: 8px; }
+  .quiz-topbar .text-back { grid-column: 1 / 2; grid-row: 1; }
+  .category-label { grid-column: 1 / 2; grid-row: 2; justify-self: start; }
+  .score-chip { grid-column: 2 / 3; grid-row: 1 / span 2; }
+  .question-panel { padding: 20px 15px 16px; border-radius: 20px; }
+  .progress-track { margin-bottom: 23px; }
+  .question-panel h2 { font-size: 22px; margin-bottom: 18px; }
+  .option-button { min-height: 52px; padding: 8px 10px; gap: 9px; }
+  .question-footer { align-items: stretch; flex-direction: column; gap: 11px; }
+  .keyboard-hint { text-align: center; }
+  .next-button { width: 100%; }
+  .result-panel { padding: 25px 16px; border-radius: 20px; }
+  .result-actions { grid-template-columns: 1fr; }
+  .result-actions .button-quiet { grid-column: auto; }
+  .site-footer { font-size: 9px; padding-bottom: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+</style>
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#home" id="brand-home" aria-label="Quiz Master home">
+      <span class="brand-mark" aria-hidden="true">Q<span>.</span></span>
+      <span class="brand-name">QUIZ<span>MASTER</span></span>
+    </a>
+    <div class="header-tag"><span class="status-dot"></span> THINK <i>·</i> PLAY <i>·</i> RANK</div>
+  </header>
+
+  <main class="app-shell">
+    <!-- HOME: keep this first screen focused on welcome, name, start and ranking -->
+    <section id="home-screen" class="screen home-screen">
+      <div class="welcome-card panel">
+        <div class="eyebrow"><span class="sparkle">✦</span> YOUR NEXT CHALLENGE STARTS HERE</div>
+        <h1>Welcome to<br><span>Quiz Master</span></h1>
+        <p class="welcome-copy">A quick brain challenge. A place on the leaderboard.</p>
+
+        <form id="name-form" class="name-form" novalidate>
+          <label for="player-name">What should we call you?</label>
+          <input id="player-name" name="player-name" type="text" maxlength="24" placeholder="Enter your name" autocomplete="given-name" aria-describedby="name-error" required>
+          <p id="name-error" class="field-error" role="alert"></p>
+          <button class="button button-primary start-button" type="submit">Start Quiz <span aria-hidden="true">↗</span></button>
+        </form>
+
+        <div class="feature-strip" aria-label="Quiz details">
+          <div><span class="feature-icon">◈</span><span><strong>2 categories</strong><small>Pick your topic</small></span></div>
+          <div><span class="feature-icon">◎</span><span><strong>20 questions</strong><small>Each round</small></span></div>
+          <div><span class="feature-icon">♛</span><span><strong>Earn your rank</strong><small>Beat your best</small></span></div>
+        </div>
+      </div>
+
+      <section class="leaderboard panel" aria-labelledby="leaderboard-title">
+        <div class="panel-heading">
+          <div class="heading-icon" aria-hidden="true">♛</div>
+          <div class="heading-copy">
+            <p class="eyebrow">THE SCOREBOARD</p>
+            <h2 id="leaderboard-title">Leaderboard</h2>
+          </div>
+          <span class="top-badge">TOP 5</span>
+        </div>
+        <div id="leaderboard-list" class="leaderboard-list" aria-live="polite">
+          <div class="empty-leaderboard">
+            <span class="empty-trophy" aria-hidden="true">♛</span>
+            <strong>Your name could be here.</strong>
+            <span>Play a round and post the first score.</span>
+          </div>
+        </div>
+        <p class="leaderboard-footnote"><span aria-hidden="true">ⓘ</span> Scores are saved on this browser only.</p>
+      </section>
+    </section>
+
+    <!-- CATEGORY SELECT -->
+    <section id="category-screen" class="screen hidden">
+      <button id="category-home" class="text-back" type="button"><span aria-hidden="true">←</span> Back to welcome</button>
+      <div class="section-intro">
+        <p class="eyebrow">LET'S GET STARTED</p>
+        <h2>Choose your <span>challenge</span></h2>
+        <p>Hey <strong id="greeting-name">Player</strong>, pick a category. Every correct answer earns 1 point.</p>
+      </div>
+      <div class="category-grid">
+        <button class="category-card category-gk" type="button" data-category="gk">
+          <span class="category-topline"><span class="category-symbol" aria-hidden="true">🌍</span><span class="round-count">20 QUESTIONS</span></span>
+          <span class="category-title">General Knowledge</span>
+          <span class="category-description">Explore science, geography, India, sports and everyday facts.</span>
+          <span class="category-cta">Start GK round <b aria-hidden="true">↗</b></span>
+        </button>
+        <button class="category-card category-aptitude" type="button" data-category="aptitude">
+          <span class="category-topline"><span class="category-symbol" aria-hidden="true">🧩</span><span class="round-count">20 QUESTIONS</span></span>
+          <span class="category-title">Aptitude</span>
+          <span class="category-description">Test number sense, percentages, logic and quick calculations.</span>
+          <span class="category-cta">Start Aptitude round <b aria-hidden="true">↗</b></span>
+        </button>
+      </div>
+      <div class="mini-tip"><span aria-hidden="true">✦</span> Take your time. Read each question, choose one answer, then move on.</div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="quiz-screen" class="screen hidden">
+      <div class="quiz-topbar">
+        <button id="exit-quiz" class="text-back" type="button"><span aria-hidden="true">←</span> Categories</button>
+        <span id="category-label" class="category-label">GENERAL KNOWLEDGE</span>
+        <span id="live-score" class="score-chip">Score <strong>0</strong></span>
+      </div>
+      <section class="question-panel panel">
+        <div class="progress-row"><span id="question-number">QUESTION 01 / 20</span><strong id="progress-percent">5%</strong></div>
+        <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
+        <p id="question-topic" class="question-topic">GENERAL</p>
+        <h2 id="question-text">Question appears here.</h2>
+        <div id="options-list" class="options-list"></div>
+        <div id="answer-feedback" class="answer-feedback" aria-live="polite"></div>
+        <div class="question-footer"><span class="keyboard-hint">Choose the best answer</span><button id="next-question" class="button button-primary next-button" type="button" disabled>Next question <span aria-hidden="true">→</span></button></div>
+      </section>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="result-screen" class="screen hidden">
+      <section class="result-panel panel">
+        <div class="result-medal" aria-hidden="true">🏆</div>
+        <p class="eyebrow">ROUND COMPLETE</p>
+        <h2 id="result-heading">Well played!</h2>
+        <p id="result-description" class="result-description"></p>
+        <div class="score-summary"><strong id="final-score">0</strong><span>out of 20 points</span></div>
+        <div class="result-stats">
+          <div><strong id="correct-total">0</strong><span>Correct</span></div>
+          <div><strong id="wrong-total">0</strong><span>Wrong</span></div>
+          <div><strong id="accuracy-total">0%</strong><span>Accuracy</span></div>
+        </div>
+        <p id="performance-message" class="performance-message"></p>
+        <div class="result-actions">
+          <button id="play-again" class="button button-primary" type="button">Play again <span aria-hidden="true">↻</span></button>
+          <button id="another-category" class="button button-secondary" type="button">Other category</button>
+          <button id="back-home" class="button button-quiet" type="button">Home & leaderboard</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer"><span class="footer-mark">Q.</span> Quiz Master <span class="footer-divider">·</span> Small rounds. Big brain energy.</footer>
+  <script>
+'use strict';
+
+const QUESTION_BANK = {
+  gk: [
+    { q: 'Which planet is known as the Red Planet?', o: ['Venus', 'Mars', 'Jupiter', 'Mercury'], a: 1, t: 'SPACE' },
+    { q: 'What is the capital of Australia?', o: ['Sydney', 'Melbourne', 'Canberra', 'Perth'], a: 2, t: 'GEOGRAPHY' },
+    { q: 'Which gas do plants mainly absorb for photosynthesis?', o: ['Oxygen', 'Nitrogen', 'Carbon dioxide', 'Hydrogen'], a: 2, t: 'SCIENCE' },
+    { q: 'How many sides does a hexagon have?', o: ['Five', 'Six', 'Seven', 'Eight'], a: 1, t: 'MATHEMATICS' },
+    { q: 'Who wrote India’s national anthem, Jana Gana Mana?', o: ['Bankim Chandra Chattopadhyay', 'Rabindranath Tagore', 'Sarojini Naidu', 'Subhas Chandra Bose'], a: 1, t: 'INDIAN CULTURE' },
+    { q: 'Which is the largest ocean on Earth?', o: ['Atlantic Ocean', 'Indian Ocean', 'Arctic Ocean', 'Pacific Ocean'], a: 3, t: 'GEOGRAPHY' },
+    { q: 'What is the chemical symbol for gold?', o: ['Ag', 'Gd', 'Au', 'Go'], a: 2, t: 'SCIENCE' },
+    { q: 'Which organ pumps blood around the human body?', o: ['Lungs', 'Brain', 'Heart', 'Kidneys'], a: 2, t: 'HUMAN BODY' },
+    { q: 'In which city is the Taj Mahal located?', o: ['Jaipur', 'Agra', 'Delhi', 'Lucknow'], a: 1, t: 'INDIAN HISTORY' },
+    { q: 'Which is the fastest land animal?', o: ['Lion', 'Horse', 'Cheetah', 'Leopard'], a: 2, t: 'ANIMALS' },
+    { q: 'What is the national animal of India?', o: ['Asiatic lion', 'Bengal tiger', 'Indian elephant', 'Snow leopard'], a: 1, t: 'INDIA' },
+    { q: 'What is the square root of 144?', o: ['10', '11', '12', '14'], a: 2, t: 'MATHEMATICS' },
+    { q: 'Which planet is famous for its prominent ring system?', o: ['Mars', 'Saturn', 'Earth', 'Venus'], a: 1, t: 'SPACE' },
+    { q: 'What is the currency of Japan?', o: ['Won', 'Yuan', 'Yen', 'Ringgit'], a: 2, t: 'WORLD FACTS' },
+    { q: 'What is the largest mammal in the world?', o: ['African elephant', 'Giraffe', 'Blue whale', 'Hippopotamus'], a: 2, t: 'ANIMALS' },
+    { q: 'What is the chemical formula for water?', o: ['CO₂', 'H₂O', 'O₂', 'NaCl'], a: 1, t: 'SCIENCE' },
+    { q: 'Who was the first President of India?', o: ['S. Radhakrishnan', 'Rajendra Prasad', 'Zakir Husain', 'V. V. Giri'], a: 1, t: 'INDIAN HISTORY' },
+    { q: 'How many players from one team are on the field in a standard cricket match?', o: ['9', '10', '11', '12'], a: 2, t: 'SPORTS' },
+    { q: 'How many days are there in a leap year?', o: ['365', '366', '364', '367'], a: 1, t: 'CALENDAR' },
+    { q: 'What does CPU stand for in computing?', o: ['Central Processing Unit', 'Computer Power Utility', 'Core Program Unit', 'Central Program User'], a: 0, t: 'TECHNOLOGY' }
+  ],
+  aptitude: [
+    { q: 'What is 15% of 200?', o: ['20', '25', '30', '35'], a: 2, t: 'PERCENTAGE' },
+    { q: 'Find the next number: 2, 4, 8, 16, __', o: ['24', '30', '32', '36'], a: 2, t: 'NUMBER SERIES' },
+    { q: 'What is the ratio 12:18 in its simplest form?', o: ['2:3', '3:2', '4:9', '6:9'], a: 0, t: 'RATIO' },
+    { q: 'An item costs ₹80 and sells for ₹100. What is the profit?', o: ['₹10', '₹15', '₹20', '₹25'], a: 2, t: 'PROFIT AND LOSS' },
+    { q: 'What is the average of 4, 6 and 8?', o: ['5', '6', '7', '8'], a: 1, t: 'AVERAGES' },
+    { q: 'What is the simple interest on ₹1,000 at 5% per year for 2 years?', o: ['₹50', '₹100', '₹150', '₹200'], a: 1, t: 'SIMPLE INTEREST' },
+    { q: 'If 12 workers each work for 5 days, how many worker-days is that in total?', o: ['17', '30', '50', '60'], a: 3, t: 'WORK AND TIME' },
+    { q: 'What is 13 squared (13 × 13)?', o: ['156', '169', '176', '196'], a: 1, t: 'SQUARES' },
+    { q: 'Find the next number: 1, 4, 9, 16, __', o: ['20', '24', '25', '36'], a: 2, t: 'NUMBER SERIES' },
+    { q: 'What percentage is 3/4?', o: ['25%', '50%', '75%', '80%'], a: 2, t: 'FRACTIONS' },
+    { q: 'If x + 7 = 19, what is x?', o: ['10', '11', '12', '13'], a: 2, t: 'BASIC ALGEBRA' },
+    { q: 'A car travels 60 km in 2 hours. What is its average speed?', o: ['20 km/h', '30 km/h', '40 km/h', '60 km/h'], a: 1, t: 'SPEED' },
+    { q: 'How many degrees are in a right angle?', o: ['45°', '60°', '90°', '180°'], a: 2, t: 'GEOMETRY' },
+    { q: 'If today is Monday, what day will it be 10 days from today?', o: ['Tuesday', 'Wednesday', 'Thursday', 'Friday'], a: 2, t: 'CALENDAR' },
+    { q: 'Find the next number: 2, 5, 8, 11, __', o: ['12', '13', '14', '15'], a: 2, t: 'NUMBER SERIES' },
+    { q: 'A bag contains 3 red balls and 2 blue balls. How many balls are there altogether?', o: ['3', '5', '6', '8'], a: 1, t: 'COUNTING' },
+    { q: 'A ₹500 item has a 20% discount. What is the sale price?', o: ['₹350', '₹400', '₹450', '₹480'], a: 1, t: 'DISCOUNT' },
+    { q: 'What is the highest common factor (HCF) of 12 and 18?', o: ['3', '6', '9', '12'], a: 1, t: 'HCF' },
+    { q: 'What is 7 × 8?', o: ['48', '54', '56', '64'], a: 2, t: 'MULTIPLICATION' },
+    { q: 'A train starts at 9:00 AM and travels for 3 hours 30 minutes. When does it arrive?', o: ['12:00 PM', '12:15 PM', '12:30 PM', '1:00 PM'], a: 2, t: 'TIME CALCULATION' }
+  ]
+};
+
+const STORAGE_KEY = 'quizMasterLeaderboard_v3';
+const $ = (id) => document.getElementById(id);
+const screens = {
+  home: $('home-screen'),
+  category: $('category-screen'),
+  quiz: $('quiz-screen'),
+  result: $('result-screen')
+};
+
+let playerName = '';
+let currentCategory = 'gk';
+let questionIndex = 0;
+let score = 0;
+let correctCount = 0;
+let hasAnswered = false;
+
+function showScreen(screenName) {
+  Object.entries(screens).forEach(([name, element]) => element.classList.toggle('hidden', name !== screenName));
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+function readLeaderboard() {
+  try {
+    const value = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || '[]');
+    if (!Array.isArray(value)) return [];
+    return value.filter((entry) => entry && typeof entry.name === 'string' && Number.isFinite(entry.score) && Number.isFinite(entry.accuracy));
+  } catch (_error) {
+    return [];
+  }
+}
+
+function renderLeaderboard() {
+  const list = $('leaderboard-list');
+  const rows = readLeaderboard()
+    .sort((a, b) => b.score - a.score || b.accuracy - a.accuracy || b.updatedAt - a.updatedAt)
+    .slice(0, 5);
+  list.replaceChildren();
+
+  if (rows.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-leaderboard';
+    const icon = document.createElement('span');
+    icon.className = 'empty-trophy';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = '♛';
+    const title = document.createElement('strong');
+    title.textContent = 'Your name could be here.';
+    const message = document.createElement('span');
+    message.textContent = 'Play a round and post the first score.';
+    empty.append(icon, title, message);
+    list.appendChild(empty);
+    return;
+  }
+
+  rows.forEach((entry, index) => {
+    const row = document.createElement('div');
+    row.className = `leader-row${index === 0 ? ' rank-one' : ''}`;
+    const rank = document.createElement('span');
+    rank.className = 'rank-number';
+    rank.textContent = index === 0 ? '♛' : `#${index + 1}`;
+    const person = document.createElement('div');
+    person.className = 'leader-person';
+    const name = document.createElement('strong');
+    name.textContent = entry.name;
+    const detail = document.createElement('span');
+    detail.textContent = `${entry.category} · ${entry.accuracy}% accuracy`;
+    person.append(name, detail);
+    const points = document.createElement('div');
+    points.className = 'leader-score';
+    const scoreText = document.createElement('strong');
+    scoreText.textContent = `${entry.score}/20`;
+    const label = document.createElement('span');
+    label.textContent = 'POINTS';
+    points.append(scoreText, label);
+    row.append(rank, person, points);
+    list.appendChild(row);
+  });
+}
+
+function saveLeaderboardScore(result) {
+  const rows = readLeaderboard();
+  const keyName = result.name.trim().toLocaleLowerCase();
+  const existingIndex = rows.findIndex((entry) => entry.name.trim().toLocaleLowerCase() === keyName);
+  if (existingIndex === -1) {
+    rows.push(result);
+  } else {
+    const old = rows[existingIndex];
+    if (result.score > old.score || (result.score === old.score && result.accuracy > old.accuracy)) {
+      rows[existingIndex] = result;
+    } else if (result.score === old.score && result.accuracy === old.accuracy) {
+      rows[existingIndex] = { ...old, updatedAt: Date.now() };
+    }
+  }
+  rows.sort((a, b) => b.score - a.score || b.accuracy - a.accuracy || b.updatedAt - a.updatedAt);
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(rows.slice(0, 100)));
+  } catch (_error) {
+    // Gameplay remains available if browser storage is disabled.
+  }
+  renderLeaderboard();
+}
+
+function startQuiz(category) {
+  const questions = QUESTION_BANK[category];
+  if (!Array.isArray(questions) || questions.length !== 20) {
+    window.alert('Sorry, this quiz category is not available. Please refresh the page.');
+    return;
+  }
+  currentCategory = category;
+  questionIndex = 0;
+  score = 0;
+  correctCount = 0;
+  hasAnswered = false;
+  $('category-label').textContent = category === 'gk' ? 'GENERAL KNOWLEDGE' : 'APTITUDE';
+  $('live-score').innerHTML = 'Score <strong>0</strong>';
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const questions = QUESTION_BANK[currentCategory];
+  const question = questions[questionIndex];
+  if (!question || !Array.isArray(question.o) || question.o.length !== 4 || !Number.isInteger(question.a) || question.a < 0 || question.a > 3) {
+    $('question-text').textContent = 'This question could not be loaded. Please go back and try again.';
+    $('options-list').replaceChildren();
+    $('next-question').disabled = true;
+    return;
+  }
+  hasAnswered = false;
+  const displayNumber = String(questionIndex + 1).padStart(2, '0');
+  const percent = Math.round(((questionIndex + 1) / questions.length) * 100);
+  $('question-number').textContent = `QUESTION ${displayNumber} / ${questions.length}`;
+  $('progress-percent').textContent = `${percent}%`;
+  $('progress-fill').style.width = `${percent}%`;
+  $('question-topic').textContent = question.t;
+  $('question-text').textContent = question.q;
+  $('answer-feedback').textContent = '';
+  $('answer-feedback').className = 'answer-feedback';
+  $('next-question').disabled = true;
+  $('next-question').innerHTML = questionIndex === questions.length - 1 ? 'See results <span aria-hidden="true">→</span>' : 'Next question <span aria-hidden="true">→</span>';
+
+  const optionList = $('options-list');
+  optionList.replaceChildren();
+  question.o.forEach((optionText, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'option-button';
+    const letter = document.createElement('span');
+    letter.className = 'option-letter';
+    letter.textContent = String.fromCharCode(65 + index);
+    const label = document.createElement('span');
+    label.textContent = optionText;
+    button.append(letter, label);
+    button.addEventListener('click', () => chooseAnswer(index, button));
+    optionList.appendChild(button);
+  });
+}
+
+function chooseAnswer(selectedIndex, selectedButton) {
+  if (hasAnswered) return;
+  hasAnswered = true;
+  const question = QUESTION_BANK[currentCategory][questionIndex];
+  const buttons = Array.from($('options-list').querySelectorAll('button'));
+  buttons.forEach((button) => { button.disabled = true; });
+
+  if (selectedIndex === question.a) {
+    score += 1;
+    correctCount += 1;
+    selectedButton.classList.add('correct');
+    $('answer-feedback').textContent = 'Correct answer! +1 point';
+    $('answer-feedback').classList.add('good');
+  } else {
+    selectedButton.classList.add('wrong');
+    buttons[question.a].classList.add('correct');
+    $('answer-feedback').textContent = `Not quite. Correct answer: ${question.o[question.a]}`;
+    $('answer-feedback').classList.add('bad');
+  }
+  $('live-score').innerHTML = `Score <strong>${score}</strong>`;
+  $('next-question').disabled = false;
+}
+
+function finishQuiz() {
+  const total = QUESTION_BANK[currentCategory].length;
+  const wrong = total - correctCount;
+  const accuracy = Math.round((correctCount / total) * 100);
+  const categoryName = currentCategory === 'gk' ? 'General Knowledge' : 'Aptitude';
+  $('result-heading').textContent = accuracy >= 80 ? `Great job, ${playerName}!` : `Keep going, ${playerName}!`;
+  $('result-description').textContent = `You finished the ${categoryName} round.`;
+  $('final-score').textContent = String(score);
+  $('correct-total').textContent = String(correctCount);
+  $('wrong-total').textContent = String(wrong);
+  $('accuracy-total').textContent = `${accuracy}%`;
+  $('performance-message').textContent = accuracy >= 90
+    ? 'Outstanding round. You have set a brilliant score!'
+    : accuracy >= 70
+      ? 'Strong effort. Come back and see if you can beat your score.'
+      : accuracy >= 50
+        ? 'A solid start. A little practice can take you higher.'
+        : 'Every round is practice. Ready for another try?';
+
+  saveLeaderboardScore({
+    name: playerName,
+    category: categoryName,
+    score,
+    accuracy,
+    updatedAt: Date.now()
+  });
+  showScreen('result');
+}
+
+$('name-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const value = $('player-name').value.trim();
+  if (!value) {
+    $('name-error').textContent = 'Please enter your name to start.';
+    $('player-name').focus();
+    return;
+  }
+  playerName = value.replace(/\s+/g, ' ');
+  $('name-error').textContent = '';
+  $('greeting-name').textContent = playerName;
+  showScreen('category');
+});
+
+$('player-name').addEventListener('input', () => { $('name-error').textContent = ''; });
+
+document.querySelectorAll('[data-category]').forEach((button) => {
+  button.addEventListener('click', () => startQuiz(button.dataset.category));
+});
+
+$('brand-home').addEventListener('click', (event) => {
+  event.preventDefault();
+  renderLeaderboard();
+  showScreen('home');
+});
+$('category-home').addEventListener('click', () => {
+  renderLeaderboard();
+  $('player-name').value = playerName;
+  showScreen('home');
+});
+$('exit-quiz').addEventListener('click', () => showScreen('category'));
+$('next-question').addEventListener('click', () => {
+  if (!hasAnswered) return;
+  questionIndex += 1;
+  if (questionIndex >= QUESTION_BANK[currentCategory].length) finishQuiz();
+  else renderQuestion();
+});
+$('play-again').addEventListener('click', () => startQuiz(currentCategory));
+$('another-category').addEventListener('click', () => showScreen('category'));
+$('back-home').addEventListener('click', () => {
+  renderLeaderboard();
+  $('player-name').value = playerName;
+  showScreen('home');
+});
+
+// Basic self-checks run on load so a broken question bank fails visibly during development.
+for (const category of Object.keys(QUESTION_BANK)) {
+  if (QUESTION_BANK[category].length !== 20 || QUESTION_BANK[category].some((q) => q.o.length !== 4 || q.a < 0 || q.a > 3)) {
+    console.error(`Quiz Master: invalid question data in ${category}`);
+  }
+}
+renderLeaderboard();
+
+  </script>
+</body>
+</html>
